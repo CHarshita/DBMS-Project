@@ -1,3 +1,4 @@
+/*
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 const BASE_URL = 'http://localhost:5000/api/admin/dashboard';
@@ -70,6 +71,80 @@ const dashboardSlice = createSlice({
       .addCase(getSalesByCountryData.rejected, (state, action) => {
         state.error = action.payload || action.error.message;
         state.loading = false;
+      });
+  },
+});
+
+export default dashboardSlice.reducer;
+
+*/
+
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
+const BASE_URL = 'http://localhost:5000/api/admin/dashboard';
+
+const createDashboardThunk = (type, endpoint) => createAsyncThunk(
+  type,
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${BASE_URL}/${endpoint}`);
+      const data = await response.json();
+      
+      if (!data.success) {
+        return rejectWithValue(data.message);
+      }
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const getDashboardStats = createDashboardThunk('dashboard/getStats', 'stats');
+export const getDailySalesData = createDashboardThunk('dashboard/getDailySalesData', 'daily-sales');
+export const getCategoryMixData = createDashboardThunk('dashboard/getCategoryMixData', 'category-mix');
+export const getSalesByCountryData = createDashboardThunk('dashboard/getSalesByCountryData', 'sales-by-country');
+
+const dashboardSlice = createSlice({
+  name: 'dashboard',
+  initialState: {
+    stats: {
+      totalOrders: 0,
+      totalCustomers: 0,
+      totalRevenue: 0,
+    },
+    dailySales: [], 
+    categoryMix: [], 
+    salesByCountry: [], 
+    loading: false,
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // Dashboard Stats Reducers
+      .addCase(getDashboardStats.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getDashboardStats.fulfilled, (state, action) => {
+        state.stats = action.payload;
+        state.loading = false;
+      })
+      .addCase(getDashboardStats.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      // Daily Sales Reducers
+      .addCase(getDailySalesData.fulfilled, (state, action) => {
+        state.dailySales = action.payload;
+      })
+      // Category Mix Reducers
+      .addCase(getCategoryMixData.fulfilled, (state, action) => {
+        state.categoryMix = action.payload;
+      })
+      // Sales by Country Reducers
+      .addCase(getSalesByCountryData.fulfilled, (state, action) => {
+        state.salesByCountry = action.payload;
       });
   },
 });
