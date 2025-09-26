@@ -31,22 +31,41 @@ import { useToast } from "@/components/ui/use-toast";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import { getFeatureImages } from "@/store/common-slice";
 
+// --- Category Image Imports (All restored) ---
+import menCategoryImg from "../../assets/men.png"; 
+import womenCategoryImg from "../../assets/women.png"; 
+import kidsCategoryImg from "../../assets/kids.png"; 
+import accessoriesCategoryImg from "../../assets/accessories.png"; 
+import footwearCategoryImg from "../../assets/footwear.png"; 
+
+// --- Brand Logo Imports ---
+import nikeLogo from "../../assets/nike-logo.png";
+import adidasLogo from "../../assets/adidas-logo.png";
+import pumaLogo from "../../assets/puma-logo.png";
+import leviLogo from "../../assets/levi-logo.png";
+import zaraLogo from "../../assets/zara-logo.png";
+import hmLogo from "../../assets/hm-logo.png";
+
+
 const categoriesWithIcon = [
-  { id: "men", label: "Men", icon: ShirtIcon },
-  { id: "women", label: "Women", icon: CloudLightning },
-  { id: "kids", label: "Kids", icon: BabyIcon },
-  { id: "accessories", label: "Accessories", icon: WatchIcon },
-  { id: "footwear", label: "Footwear", icon: UmbrellaIcon },
+  // All categories now defined to use images
+  { id: "men", label: "Men", media: menCategoryImg, type: "image" },
+  { id: "women", label: "Women", media: womenCategoryImg, type: "image" },
+  { id: "kids", label: "Kids", media: kidsCategoryImg, type: "image" },
+  { id: "accessories", label: "Accessories", media: accessoriesCategoryImg, type: "image" },
+  { id: "footwear", label: "Footwear", media: footwearCategoryImg, type: "image" },
 ];
 
+// All brand entries now use imported images
 const brandsWithIcon = [
-  { id: "nike", label: "Nike", icon: Shirt },
-  { id: "adidas", label: "Adidas", icon: WashingMachine },
-  { id: "puma", label: "Puma", icon: ShoppingBasket },
-  { id: "levi", label: "Levi's", icon: Airplay },
-  { id: "zara", label: "Zara", icon: Images },
-  { id: "h&m", label: "H&M", icon: Heater },
+  { id: "nike", label: "Nike", media: nikeLogo, type: "image" },
+  { id: "adidas", label: "Adidas", media: adidasLogo, type: "image" },
+  { id: "puma", label: "Puma", media: pumaLogo, type: "image" },
+  { id: "levi", label: "Levi's", media: leviLogo, type: "image" },
+  { id: "zara", label: "Zara", media: zaraLogo, type: "image" },
+  { id: "h&m", label: "H&M", media: hmLogo, type: "image" },
 ];
+
 function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { productList, productDetails } = useSelector(
@@ -169,13 +188,23 @@ function ShoppingHome() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {categoriesWithIcon.map((categoryItem) => (
               <Card
+                key={categoryItem.id}
                 onClick={() =>
                   handleNavigateToListingPage(categoryItem, "category")
                 }
                 className="cursor-pointer hover:shadow-lg transition-shadow"
               >
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <categoryItem.icon className="w-12 h-12 mb-4 text-primary" />
+                <CardContent className="flex flex-col items-center justify-center p-6 min-h-[150px]">
+                  {/* Conditional rendering for Category image/icon */}
+                  {categoryItem.type === "image" ? (
+                    <img
+                      src={categoryItem.media}
+                      alt={categoryItem.label}
+                      className="w-20 h-20 mb-4 object-contain"
+                    />
+                  ) : (
+                    <categoryItem.media className="w-20 h-20 mb-4 text-primary" />
+                  )}
                   <span className="font-bold">{categoryItem.label}</span>
                 </CardContent>
               </Card>
@@ -190,11 +219,22 @@ function ShoppingHome() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {brandsWithIcon.map((brandItem) => (
               <Card
+                key={brandItem.id}
                 onClick={() => handleNavigateToListingPage(brandItem, "brand")}
                 className="cursor-pointer hover:shadow-lg transition-shadow"
               >
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <brandItem.icon className="w-12 h-12 mb-4 text-primary" />
+                <CardContent className="flex flex-col items-center justify-center p-6 min-h-[150px]">
+                   {/* Conditional rendering for Brand images */}
+                  {brandItem.type === "image" ? (
+                    <img
+                      src={brandItem.media}
+                      alt={brandItem.label}
+                      className="w-20 h-20 mb-4 object-contain"
+                    />
+                  ) : (
+                    // This fallback shouldn't be needed, but now points to the proper icon logic
+                    <brandItem.media className="w-20 h-20 mb-4 text-primary" />
+                  )}
                   <span className="font-bold">{brandItem.label}</span>
                 </CardContent>
               </Card>
@@ -212,6 +252,7 @@ function ShoppingHome() {
             {productList && productList.length > 0
               ? productList.map((productItem) => (
                   <ShoppingProductTile
+                    key={productItem._id}
                     handleGetProductDetails={handleGetProductDetails}
                     product={productItem}
                     handleAddtoCart={handleAddtoCart}
